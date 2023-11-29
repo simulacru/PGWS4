@@ -1,0 +1,3 @@
+﻿  main.cpp
+D:\授業資料\プログラムワークショップⅣ\PGWS4\PGWS4\main.cpp(172,20): warning C4018: '<': signed と unsigned の数値を比較しようとしました。
+  PGWS4.vcxproj -> D:\授業資料\プログラムワークショップⅣ\PGWS4\x64\Debug\PGWS4.exe

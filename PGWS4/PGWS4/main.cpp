@@ -211,35 +211,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//};;
 
 	//default
-	//Vertex vertices[] = {
-	//{{-1.0f, -1.0f, 0.0f},{0.0f, 1.0f}}, //左下
-	//{{-1.0f, +1.0f, 0.0f},{0.0f, 0.0f}}, //左上
-	//{{+1.0f, -1.0f, 0.0f},{1.0f, 1.0f}}, //右下
-	//{{+1.0f, +1.0f, 0.0f},{1.0f, 0.0f}}, //右上
-	//};
-
 	Vertex vertices[] = {
-{{0.0f, 100.0f, 0.0f},{0.0f, 1.0f}}, //左下
-{{0.0f, 0.0f, 0.0f},{0.0f, 0.0f}}, //左上
-{{100.0f, 100.0f, 0.0f},{1.0f, 1.0f}}, //右下
-{{100.0f, 0.0f, 0.0f},{1.0f, 0.0f}}, //右上
+	{{-1.0f, -1.0f, 0.0f},{0.0f, 1.0f}}, //左下
+	{{-1.0f, +1.0f, 0.0f},{0.0f, 0.0f}}, //左上
+	{{+1.0f, -1.0f, 0.0f},{1.0f, 1.0f}}, //右下
+	{{+1.0f, +1.0f, 0.0f},{1.0f, 0.0f}}, //右上
 	};
-
-	//D3D12_HEAP_PROPERTIES heapprop = {};
-	//heapprop.Type = D3D12_HEAP_TYPE_UPLOAD;
-	//heapprop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	//heapprop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-	//D3D12_RESOURCE_DESC resdesc = {};
-	//resdesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	//resdesc.Width = sizeof(vertices);
-	//resdesc.Height = 1;
-	//resdesc.DepthOrArraySize = 1;
-	//resdesc.MipLevels = 1;
-	//resdesc.Format = DXGI_FORMAT_UNKNOWN;
-	//resdesc.SampleDesc.Count = 1;
-	//resdesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-	//resdesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 	ID3D12Resource* vertBuff = nullptr;
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -414,16 +391,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	rootparam.DescriptorTable.pDescriptorRanges = descTblRange; //デスクリプタレンジのアドレス
 	rootparam.DescriptorTable.NumDescriptorRanges = 2; //デスクリプタレンジ数
 	rootparam.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全てのシェーダから見える
-
-	/*rootparam[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootparam[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootparam[0].DescriptorTable.pDescriptorRanges = &descTblRange[0];
-	rootparam[0].DescriptorTable.NumDescriptorRanges = 1;
-
-	rootparam[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootparam[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootparam[1].DescriptorTable.pDescriptorRanges = &descTblRange[1];
-	rootparam[1].DescriptorTable.NumDescriptorRanges = 1;*/
 
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
@@ -608,13 +575,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	_cmdAllocator->Reset();//キューをクリア
 	_cmdList->Reset(_cmdAllocator, nullptr);
 
-	//result = texbuff->WriteToSubresource(0,
-	//	nullptr,
-	//	img->pixels,
-	//	static_cast<UINT>(img->rowPitch),
-	//	static_cast<UINT>(img->slicePitch)
-	//);
-
 	//定数バッファー作成
 	XMMATRIX matrix = XMMatrixRotationY(XM_PIDIV4);
 
@@ -622,24 +582,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	XMFLOAT3 target(0, 0, 0);
 	XMFLOAT3 up(0, 1, 0);
 
-	matrix = XMMatrixLookAtLH(
+	matrix *= XMMatrixLookAtLH(
 		XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
-	matrix = XMMatrixPerspectiveFovLH(
+	matrix *= XMMatrixPerspectiveFovLH(
 		XM_PIDIV2, //画角は90°
 		static_cast<float>(window_width)
 		/ static_cast<float>(window_height), //アスペクト比
 		1.0f, //近い方
 		10.0f //遠い方
 	);
-
-	matrix.r[0].m128_f32[0] = +2.0f / window_width;
-	matrix.r[1].m128_f32[1] = -2.0f / window_height;
-
-	//matrix.r[0].m128_f32[0] = -1.0f;
-	//matrix.r[1].m128_f32[1] = +1.0f;
-
-	matrix.r[3].m128_f32[0] = -1.0f;
-	matrix.r[3].m128_f32[1] = +1.0f;
 
 	ID3D12Resource* constBuff = nullptr;
 	//auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -744,16 +695,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		_cmdList->SetGraphicsRootSignature(rootsignature);
 		_cmdList->SetDescriptorHeaps(1, &basicDescHeap);
 		_cmdList->SetGraphicsRootDescriptorTable(0, basicDescHeap->GetGPUDescriptorHandleForHeapStart());
-
-		/*auto heapHandle = basicDescHeap->GetGPUDescriptorHandleForHeapStart();
-		_cmdList->SetGraphicsRootDescriptorTable(
-			0,
-			heapHandle);
-		heapHandle.ptr += _dev->GetDescriptorHandleIncrementSize(
-		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		_cmdList->SetGraphicsRootDescriptorTable(1, heapHandle);*/
-
-		//_cmdList->DrawInstanced(5, 1, 0, 0);
 		_cmdList->DrawIndexedInstanced(6, 1, 0, 0, 0);
 
 		BarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;

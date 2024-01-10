@@ -1,9 +1,6 @@
 #include"BasicShaderHeader.hlsli"
 
-Output BasicVS(float4 pos : POSITION, float2 uv : TEXCOORD)
+float4 BasicPS(Output input) : SV_TARGET
 {
-	Output output;
-	output.svpos = mul(mat, pos);
-	output.uv = uv;
-	return output;
+	return float4(tex.Sample(smp, input.uv));
 }
